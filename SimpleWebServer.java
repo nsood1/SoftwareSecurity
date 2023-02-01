@@ -68,7 +68,8 @@ public class SimpleWebServer {
  	osw.close();                                    
     }                                                   
  
-    public void serveFile (OutputStreamWriter osw,String pathname) throws Exception {
+    public void serveFile (OutputStreamWriter osw,      
+			   String pathname) throws Exception {
  	FileReader fr=null;                                 
  	int c=-1;                                           
  	StringBuffer sb = new StringBuffer();
@@ -108,63 +109,44 @@ public class SimpleWebServer {
  
     /* This method is called when the program is run from
        the command line. */
+
+	public void storeFile(BufferedReader br, OutputStreamWriter osw, String pathname) throws Exception{
+		FileWriter fw= null;
+
+		try{
+			fw = new FileWriter(pathname);
+			String s = br.readLine();
+
+			while (s != null){
+				fw.write(s);
+				s = br.readLine();
+			}
+
+			fw.close();
+			osw.write("HTTP/1.0 201 Created");
+		} catch (Exception e){
+			osw.write("HTTP/ 1.0 500 Internal Server Error");
+		}
+	}
+
+	public void logEntry(String filename, String record){
+		try{
+			FileWriter fw = new FileWriter(filename, true);
+			fw.write(getTimeStamp() + " " + record);
+			fw.close();
+		} catch(IOException e ){
+			return;
+		}
+	}
+
+	public String getTimeStamp() {
+		return(new Date()).toString();
+	}
     public static void main (String argv[]) throws Exception { 
  
- 	/* Create a SimpleWebServer object, and run it */
- 	SimpleWebServer sws = new SimpleWebServer();           
- 	sws.run();                                             
+		// /* Create a SimpleWebServer object, and run it */
+		SimpleWebServer sws = new SimpleWebServer();           
+		sws.run();  
+		System.out.print("Testing");                                           
     }                                                          
-} 
-
-
-public void storeFile(BufferedReader br, OutputStreamWriter osw, String pathname) throws Exception{
-		FileWriter fw= null;
-
-		try{
-			fw = new FileWriter(pathname);
-			String s = br.readLine();
-
-			while (s != null){
-				fw.write(s);
-				s = br.readLine();
-			}
-
-			fw.close();
-			osw.write("HTTP/1.0 201 Created");
-		} catch (Exception e){
-			osw.write("HTTP/ 1.0 500 Internal Server Error");
-		}
-	}
-
-public void storeFile(BufferedReader br, OutputStreamWriter osw, String pathname) throws Exception{
-		FileWriter fw= null;
-
-		try{
-			fw = new FileWriter(pathname);
-			String s = br.readLine();
-
-			while (s != null){
-				fw.write(s);
-				s = br.readLine();
-			}
-
-			fw.close();
-			osw.write("HTTP/1.0 201 Created");
-		} catch (Exception e){
-			osw.write("HTTP/ 1.0 500 Internal Server Error");
-		}
-	}
-
-public void logEntry(String filename, String record){
-	try{
-		FileWriter fw = new FileWriter(filename, true);
-		fw.write(getTimeStamp() + " " + record);
-		fw.close();
-	} catch(IOException e ){
-		return;
-	}
-}
-
-public String getTimeStamp() {
-	return(new Date()).toString();
-	}
+}   
