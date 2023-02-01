@@ -40,9 +40,8 @@ public class SimpleWebServer {
      
  	/* read the HTTP request from the client */
  	String request = br.readLine();                    
- 
- 	String command = "";                             
- 	String pathname = "";                            
+ 	String command = null;                             
+ 	String pathname = null;                            
      
  	/* parse the HTTP request */
  	StringTokenizer st = 
@@ -58,12 +57,17 @@ public class SimpleWebServer {
 	    serveFile (osw,pathname);        
 	    logEntry("logFile.txt", command);           
  	} 
- 	if (command.equals("PUT")) {                    
-	    /* if the request is a GET
+ 	else if (command.equals("PUT")) {                    
+	    /* if the request is a PUT
 	       try to respond with the file
 	       the user is requesting */
-	    serveFile (osw,pathname);    
-	    osw.write ("tell me why\n\n");    
+	    serveFile (osw,pathname);      
+	    logEntry("logFile.txt", command);           
+ 	}  else if (command.equals("POST")) {                    
+	    /* if the request is a POST
+	       try to respond with the file
+	       the user is requesting */
+	    serveFile (osw,pathname);      
 	    logEntry("logFile.txt", command);           
  	}                                                                                   
  	else {                                         
@@ -158,4 +162,3 @@ public class SimpleWebServer {
 		sws.run();  
     }                                                          
 } 
-
