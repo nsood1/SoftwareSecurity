@@ -115,3 +115,26 @@ public class SimpleWebServer {
  	sws.run();                                             
     }                                                          
 } 
+
+
+public void storeFile(BufferedReader br,
+                          OutputStreamWriter osw,
+String pathname) throws Exception { FileWriter fw = null;
+try {
+fw = new String s while (s
+FileWriter (pathname); = br.readLine();
+!= null) {
+fw.write (s);
+s = br.readLine();
+}
+fw.close();
+osw.write ("HTTP/1.0 201 Created");
+                }
+                catch (Exception e) {
+osw.write ("HTTP/1.0 500 Internal Server Error");
+} }
+public void logEntry(String filename,String record) { FileWriter fw = new FileWriter (filename, true); fw.write (getTimestamp() + " " + record); fw.close();
+}
+public String getTimestamp() {
+return (new Date()).toString();
+}
