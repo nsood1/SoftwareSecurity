@@ -63,12 +63,7 @@ public class SimpleWebServer {
 	       the user is requesting */
 	    serveFile (osw,pathname);      
 	    logEntry("logFile.txt", command);           
- 	}  else if (command.equals("POST")) {                    
-	    /* if the request is a POST
-	       try to respond with the file
-	       the user is requesting */
-	    serveFile (osw,pathname);      
-	    logEntry("logFile.txt", command);           
+ 	       
  	}                                                                                   
  	else {                                         
 	    /* if the request is a NOT a GET,
@@ -94,8 +89,8 @@ public class SimpleWebServer {
  	
  	/* if there was no filename specified by the
  	   client, serve the "index.html" file */
- 	if (pathname.equals(""))                            
- 	    pathname="index.html";                          
+ 	if (pathname.equals(" "))                            
+ 	    pathname="";                          
  
  	/* try to open file specified by pathname */
  	try {                                               
