@@ -1,16 +1,39 @@
 import java.io.*;                                         
-import java.net.*;                                        
+import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;                                       
  
 public class SimpleWebServer {                            
  
     /* Run the HTTP server on this TCP port. */           
-    private static final int PORT = 8080;                 
+    private static final int PORT = 8080;     
+	
+	private static final int downloadsize = 1000;
  
     /* The socket used to process incoming connections
        from web clients */
-    private static ServerSocket dServerSocket;            
-   
+    private static ServerSocket dServerSocket;     
+	
+	private String user = "nikki";
+	private String pass = "123qwe";
+
+	public boolean checkUser(String authHeader) {
+		String encodedUP = authHeader.substring("Basic ".length()).trim();
+		byte[] decodedBytes = Base64.getDecoder().decode(encodedUP);
+		String decodedString = new String(decodedBytes);
+		String userN = decodedString.split(":")[0].trim();
+		String passW = decodedString.split(":")[1].trim();
+
+		if(userN.equals(this.user) && passW.equals(this.pass)){
+			return true;
+		}
+
+		else{
+			return false;
+		}
+	}	
+
     public SimpleWebServer () throws Exception {          
  	dServerSocket = new ServerSocket (PORT);          
     }                                                     
@@ -79,7 +102,8 @@ public class SimpleWebServer {
     public void serveFile (OutputStreamWriter osw,      
 			   String pathname) throws Exception {
  	FileReader fr=null;                                 
- 	int c=-1;                                           
+ 	int c=-1;
+	int bytesSent = 0;                                           
  	StringBuffer sb = new StringBuffer();
        
  	/* remove the initial slash at the beginning
@@ -107,13 +131,23 @@ public class SimpleWebServer {
  	/* if the requested file can be successfully opened
  	   and read, then return an OK response code and
  	   send the contents of the file */
- 	osw.write ("HTTP/1.0 200 OK\n\n");                    
- 	while (c != -1) {       
-	    sb.append((char)c);                            
- 	    c = fr.read();                                  
- 	}                                                   
- 	osw.write (sb.toString());                                  
-    }                                                       
+ 	if(Files.size(Paths.get(pathname)) <= downloadsize){
+		osw.write ("HTTP/1.0 200 OK\n\n");                    
+		while (c != -1 && bytesSent <= downloadsize) {    
+			bytesSent++;   
+			sb.append((char)c);                            
+			c = fr.read();                                  
+		}                                                   
+ 		osw.write (sb.toString());                                  
+    }    
+	
+	else{
+		osw.write("HTTP/1.0 403 Forbidden\n\n");
+		logEntry("errorlog.txt", "File too large" + Inet4Address.getLocalHost());
+	}
+	 }
+	
+	                          
  
     /* This method is called when the program is run from
        the command line. */
@@ -123,15 +157,40 @@ public class SimpleWebServer {
 
 		try{
 			fw = new FileWriter(pathname);
+			boolean autherization = false;
 			String s = br.readLine();
 
-			while (s != null){
-				fw.write(s);
-				s = br.readLine();
+			while (s != null && s.length() > 0){
+				if (s.contains("Basic")){
+					autherization = true; 
+					
+					if(!checkUser(s.substring(s.indexOf("Basic")))){
+						osw.write("HTTP/1,0 403 Forbidden \n\n");
+						logEntry("errorLogs.txt", "Incorrect Auth");
+						osw.close();
+						return;
+					}
+				}
+
 			}
 
-			fw.close();
+			if(!autherization){
+				osw.write("HTTP/1.0 401 Unauthorized \n\n");
+			}
+
+
+
 			osw.write("HTTP/1.0 201 Created");
+			s = br.readLine();
+
+			while (s != null && s.length() > 0){
+				fw.append(s);
+				s = br.readLine();
+			}
+			
+			fw.close();
+
+
 		} catch (Exception e){
 			osw.write("HTTP/ 1.0 500 Internal Server Error");
 		}
