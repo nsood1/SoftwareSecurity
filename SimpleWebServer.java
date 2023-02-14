@@ -19,11 +19,13 @@ public class SimpleWebServer {
 	private String pass = "123qwe";
 
 	public boolean checkUser(String authHeader) {
-		String encodedUP = authHeader.substring("Basic ".length()).trim();
+		String encodedUP = authHeader.substring("Basic ".length());
+
 		byte[] decodedBytes = Base64.getDecoder().decode(encodedUP);
+		
 		String decodedString = new String(decodedBytes);
-		String userN = decodedString.split(":")[0].trim();
-		String passW = decodedString.split(":")[1].trim();
+		String userN = decodedString.split(":")[0];
+		String passW = decodedString.split(":")[1];
 
 		if(userN.equals(this.user) && passW.equals(this.pass)){
 			return true;
@@ -103,7 +105,8 @@ public class SimpleWebServer {
 			   String pathname) throws Exception {
  	FileReader fr=null;                                 
  	int c=-1;
-	int bytesSent = 0;                                           
+	
+	 int bytesSent = 0;                                           
  	StringBuffer sb = new StringBuffer();
        
  	/* remove the initial slash at the beginning
